@@ -2,8 +2,8 @@ from chatterbot import ChatBot, conversation
 from chatterbot.trainers import ChatterBotCorpusTrainer, ListTrainer
 from flask import Flask, request
 app = Flask(__name__)
-PORT = 80
-DEBUG = False
+PORT = 8000
+DEBUG = True
 
 #se graba en log todo
 import logging
