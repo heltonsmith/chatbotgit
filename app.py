@@ -1,37 +1,57 @@
-#!/usr/bin/env python
-"""A simple API to do almost nothing"""
-import hug
+from chatterbot import ChatBot, conversation
+from chatterbot.trainers import ChatterBotCorpusTrainer, ListTrainer
+from flask import Flask, request
+app = Flask(__name__)
+PORT = 8000
+DEBUG = True
 
-users = [
-    {
-        'uid': u'jsmith',
-        'name': u'John Smith',
-        'email': u'jsmith@example.com',
-        'phone': u'123-456-7890'
-    },
-    {
-        'uid': u'jdoe',
-        'name': u'Jane Doe',
-        'email': u'jdoe@example.com',
-        'phone': u'234-567-8901'
-    },
-    {
-        'uid': u'ssample',
-        'name': u'Sally Sample',
-        'email': u'ssample@example.com',
-        'phone': u'345-678-9012'
-    }
-]
+#se graba en log todo
+import logging
+logging.basicConfig(filename='archivolog.log', level=logging.DEBUG)
+#se graba en log todo
 
-@hug.get('/users', versions=1)
-def user(user_id):
-    return 'I do nothing useful.'
-    #return user_id
+#objeto de chatterbot
+chatbot = ChatBot('WinChat')
 
-@hug.local()
-@hug.get('/users', versions=2)
-def user():
-    return {'users': users}
+#para borrar cache de aprendizaje
+chatbot.storage.drop() #para borrar cache de aprendizaje
+
+#####añadido de listas
+entrenador = ListTrainer(chatbot)
+conversacionL = ["Holanda", "Hola Humano"] #para entrenar con un array
+entrenador.train(conversacionL)
+#####añadido de listas
+
+#url YML C:\Users\helto\AppData\Local\Programs\Python\Python39\Lib\site-packages\chatterbot_corpus\data
+
+#entrena con archivos YML
+entrenador = ChatterBotCorpusTrainer(chatbot)
+entrenador.train("./data/roca.yml")
+#entrenador.train(
+#    "./data/propio.json"
+#)
+#entrena con archivos YML
+
+#http://localhost:8000/respuestapi?pregunta=holanda&id=1
+#hug -f .\app.py
+
+@app.errorhandler(404)
+def not_found(error):
+    return "Not Found."
+
+@app.route('/', methods=['GET'])
+def index():
+    return "Bienvenido a la API del futuro: EJ: (URL/id/pregunta)"   
+
+@app.route('/<int:idd>/<string:p>', methods=['GET'])
+def entity(idd, p):
+    respuesta = chatbot.get_response(p)
+    rrr=str(respuesta)
+    return {
+                'id': idd,
+                'pregunta': p,
+                'respuesta': rrr
+            }
 
 if __name__ == '__main__':
-    user.interface.local()
+    app.run(port = PORT, debug = DEBUG)
