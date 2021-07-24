@@ -4,8 +4,6 @@ import hug
 
 ####
 #!/usr/bin/env python3
-from http.server import HTTPServer, SimpleHTTPRequestHandler, test
-import sys
 
 ####class CORSRequestHandler (SimpleHTTPRequestHandler):
 ####    def end_headers (self):
@@ -50,6 +48,11 @@ entrenador.train("./data/roca.yml")
 def process_data(request, response, resource):
       response.set_header('Access-Control-Allow-Origin', '*')
 
+@hug.get('/users', versions=1)
+def user(user_id):
+    return 'I do nothing useful.'
+    #return user_id
+
 @hug.get(examples='respuestapi?pregunta=holanda&id=1')
 @hug.local()
 def respuestapi(pregunta: hug.types.text, id: hug.types.number, hug_timer=3):
@@ -61,3 +64,6 @@ def respuestapi(pregunta: hug.types.text, id: hug.types.number, hug_timer=3):
                 'respuesta': rrr,
                 'took': float(hug_timer)
             }
+
+if __name__ == '__main__':
+    user.interface.local()
